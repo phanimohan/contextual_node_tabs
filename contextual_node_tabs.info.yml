@@ -1,0 +1,8 @@
+name: Contextual Node Tabs
+type: module
+description: Converting node local tasks into contextual links and configurable using block.
+package: User Interface
+core: 8.x
+dependencies:
+  - block
+  - contextual

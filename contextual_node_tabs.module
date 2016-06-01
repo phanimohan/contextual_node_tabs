@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Module file for contextual_node_tabs.
+ */
+
+use Drupal\Component\Utility\Unicode;
+use Drupal\Core\Block\BlockPluginInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function contextual_node_tabs_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.contextual_node_tabs':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Converting node local tasks into contextual links and configurable using block') . '</p>';
+      
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_page_attachments().
+ *
+ * Adds the javascript library to the pages.
+ */
+function contextual_node_tabs_page_attachments(array &$page) {
+  $page['#attached']['library'][] = 'contextual_node_tabs/contextual_node_tabs';
+}

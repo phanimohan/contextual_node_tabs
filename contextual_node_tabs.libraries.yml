@@ -1,0 +1,23 @@
+contextual_node_tabs:
+  version: VERSION
+  js:
+    # Core.
+    js/contextual_node_tabs.js: {}
+    js/contextual_node_tabs.util.js: {}
+  css:
+    theme:
+      css/contextual_node_tabs.theme.css: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/underscore
+    - core/backbone
+    - core/jquery.form
+    - core/jquery.ui.position
+    - core/drupal
+    - core/drupal.displace
+    - core/drupal.form
+    - core/drupal.ajax
+    - core/drupal.debounce
+    - core/drupalSettings
+    - core/drupal.dialog
