@@ -1,0 +1,34 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the contextual node tabs toolbar.
+ *
+ * Available variables:
+ * - local_tasks: Node local tasks including primary and secondary.
+ * - config: Additional settings for the menu.
+ *
+ * @see contextual_node_tabs_theme()
+ *
+ * @ingroup themeable
+ */
+#}
+
+<div class="dropdown">
+	<a class="account"><img src="{{ icon }}" border="0" /></a>
+
+	<div class="submenu">
+		<ul class="root">
+			<li ><a href="#Dashboard" >Dashboard</a></li>
+			<li ><a href="#Profile" >Profile</a></li>
+			<li ><a href="#settings">Settings</a></li>
+			<li ><a href="#feedback">Send Feedback</a></li>
+		</ul>
+	</div>
+</div>
+
+<!-- <div class="dropdownWrapper">
+  <div class="dropdownLabel"></div>
+  <div class="dropdownPanel">
+    Content goes here
+  </div>
+</div> -->
