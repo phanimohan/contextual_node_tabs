@@ -3,13 +3,18 @@
  * Attaches behavior for the Contextual Node Tabs Block configure.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, drupalSettings) {
 
   'use strict';
+	
+	var contextualNodeTabsSettings = drupalSettings.contextualNodeTabs;
 
   $('#edit-settings-alignment-icon').change(function() {
-		alert('Selected value: ');
-		alert($(this).val);
+		var $selectedIndex = $(this).val();
+		if ($selectedIndex !== 'custom') {
+			var iconPath = contextualNodeTabsSettings.iconPath + '/icon-' + $selectedIndex + '.png';
+			$('#edit-settings-alignment-icon-image img').attr('src', iconPath);	
+		}
 	});
 
-})(jQuery, Drupal);
+})(jQuery, Drupal, drupalSettings);

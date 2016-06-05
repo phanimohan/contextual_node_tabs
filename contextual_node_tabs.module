@@ -30,3 +30,19 @@ function contextual_node_tabs_help($route_name, RouteMatchInterface $route_match
 function contextual_node_tabs_page_attachments(array &$page) {
   $page['#attached']['library'][] = 'contextual_node_tabs/contextual_node_tabs';
 }
+
+/**
+ * Implements hook_theme().
+ */
+function contextual_node_tabs_theme() {
+  return array(
+    'contextual_local_tasks' => array(
+      'variables' => array(
+				'local_tasks' => NULL, 
+				'config' => NULL,
+				'icon' => NULL,
+			),
+      'template' => 'block--cnt',
+    ),
+  );
+}

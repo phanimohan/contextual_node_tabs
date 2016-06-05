@@ -10,6 +10,7 @@ namespace Drupal\contextual_node_tabs\Plugin\Block;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\file\Entity\File;
 use Drupal\Core\Menu\LocalTaskManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\Element;
@@ -87,6 +88,7 @@ class ContextualNodeTabsBlock extends BlockBase implements ContainerFactoryPlugi
 			'align' => TRUE,
 			'position' => 'fixed',
 			'icon' => 'settings',
+			'custom' => '',
     ];
   }
 
@@ -96,10 +98,7 @@ class ContextualNodeTabsBlock extends BlockBase implements ContainerFactoryPlugi
   public function build() {
     $config = $this->configuration;
 		$cacheability = new CacheableMetadata();
-    $contextual_tabs = [
-      '#theme' => 'contextual_local_tasks',
-			'#config' => $config,
-    ];
+    $contextual_tabs = [];
 
     // Add only selected levels for the printed output.
     $links = $this->localTaskManager->getLocalTasks($this->routeMatch->getRouteName(), 0);
@@ -115,12 +114,25 @@ class ContextualNodeTabsBlock extends BlockBase implements ContainerFactoryPlugi
 		];
 
     $build = [];
-    $cacheability->applyTo($build);
+    //$cacheability->applyTo($build);
     if (empty($contextual_tabs['#primary']) && empty($contextual_tabs['#secondary'])) {
       return $build;
     }
 		
-    return $build + $contextual_tabs;
+		if ($config['icon'] != 'custom') {
+			$icon_path = $base_path . drupal_get_path('module', 'contextual_node_tabs') . '/images';
+			$icon_image = $icon_path . '/icon-' . $config['icon'] . '.png';	
+		} else {
+			$custom_icon = File::load($config['custom']['0']);
+			$icon_image = file_create_url($custom_icon->getFileUri());
+		}
+		
+		return [
+			'#theme' => 'contextual_local_tasks',
+			'#local_tasks' => $contextual_tabs,
+			'#config' => $config,
+			'#icon' => $icon_image,
+		];
   }
 
   /**
@@ -129,6 +141,7 @@ class ContextualNodeTabsBlock extends BlockBase implements ContainerFactoryPlugi
   public function blockForm($form, FormStateInterface $form_state) {
     $config = $this->configuration;
     $defaults = $this->defaultConfiguration();
+		global $base_path;
 
 		$form['alignment'] = [
       '#type' => 'details',
@@ -159,29 +172,89 @@ class ContextualNodeTabsBlock extends BlockBase implements ContainerFactoryPlugi
 		$form['alignment']['icon'] = [
       '#type' => 'select',
       '#title' => $this->t('Icon style'),
+			'#required' => TRUE,
 			'#options' => array(
-        'settings' => t('Gear Icon'),
+				'settings' => t('Gear Icon'),
 				'orange_settings' => t('Orange Gear Icon'),
         'vertical_dots' => t('Vertical Dots'),
 				'horizontal_dots' => t('Horizontal Dots'),
 				'menu' => t('Menu Icon'),
 				'down_arrow' => t('Down Arrow Icon'),
+				'custom' => t('Custom'),
       ),
       '#default_value' => $config['icon'],
     ];
+		
+		$icon_path = $base_path . drupal_get_path('module', 'contextual_node_tabs') . '/images';
+		$icon_image = '<img src="' . $icon_path . '/icon-' . $config['icon'] . '.png" border="0" />';
+		
+		$form['alignment']['icon_image'] = [
+      '#type' => 'item',
+			'#markup' => $icon_image,
+			'#states' => array(
+				'invisible' => array(
+					':input[name="settings[alignment][icon]"]' => array('value' => 'custom'),
+				),
+			),
+    ];
+		
+		$form['alignment']['custom'] = array(
+			'#type' => 'details',
+      '#title' => $this->t('Custom Icon'),
+      '#description' => $this->t('Upload custom icon for contextual node tabs. Valid extensions: png jpg jpeg'),
+			'#states' => array(
+				'visible' => array(
+					':input[name="settings[alignment][icon]"]' => array('value' => 'custom'),
+				),
+			),
+			'#open' => TRUE,
+		);
+		
+		$form['alignment']['custom']['upload_icon'] = array(
+			'#type' => 'managed_file',
+			'#default_value' => $config['custom'],
+			'#upload_location' => 'public://contextual_node_tab_icons',
+			'#upload_validators'  => array(
+				'file_validate_extensions' => array('png jpg jpeg'),
+			),
+			'#states' => array(
+				'required' => array(
+					':input[name="settings[alignment][icon]"]' => array('value' => 'custom'),
+				),
+			),
+		);
+		
+		$form['#attached']['drupalSettings'] = [
+			'contextualNodeTabs' => array(
+				'iconPath' => $icon_path,
+			),
+		];
 
     return $form;
+  }
+	
+	/**
+   * {@inheritdoc}
+   */
+  public function blockValidate($form, FormStateInterface $form_state) {
+    $alignments = $form_state->getValue('alignment');
+    if ($alignments['icon'] == 'custom' && empty($alignments['custom']['upload_icon'])) {
+			drupal_set_message(t('Upload custom icon'), 'error');
+     	$form_state->setErrorByName('alignment][custom][upload_icon', t('Custom icon field is required'));
+    }
   }
 
   /**
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
+		$account = \Drupal::currentUser();
     $alignments = $form_state->getValue('alignment');
     $this->configuration['auto_hide'] = $alignments['auto_hide'];
     $this->configuration['align'] = $alignments['align'];
 		$this->configuration['position'] = $alignments['position'];
 		$this->configuration['icon'] = $alignments['icon'];
+		$this->configuration['custom'] = $alignments['custom']['upload_icon'];
   }
 	
 	/**
