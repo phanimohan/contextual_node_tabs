@@ -38,8 +38,9 @@ function contextual_node_tabs_theme() {
   return array(
     'contextual_local_tasks' => array(
       'variables' => array(
-				'local_tasks' => NULL, 
-				'config' => NULL,
+				'local_primary_tasks' => NULL, 
+				'local_secondary_tasks' => NULL,
+        'classes' => NULL,
 				'icon' => NULL,
 			),
       'template' => 'block--cnt',

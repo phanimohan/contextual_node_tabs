@@ -6,34 +6,34 @@
 (function ($, Drupal, drupalSettings) {
 
   'use strict';
-
-  var $dropdown = $('div.dropdownWrapper'),
-      $drpBtn   = $dropdown.find('div.dropdownLabel');
-
-  $drpBtn.on('click', function(e){
-    e.stopPropagation();
-    var $element = $(this).parent();
-    $element.find('.dropdownPanel').fadeToggle(200);
-  });
 	
-	$(".account").click(function() {
-		$(".submenu").toggleClass('menu-show');
+	$(".cnt-icon").button({
+		icons: {
+			secondary: "ui-icon-triangle-1-s"
+		}
 	});
 	
-	//Mouse click on sub menu
-	$(".submenu").mouseup(function() {
-		return false;
-	});
-
-	//Mouse click on my account link
-	$(".account").mouseup(function() {
-		return false;
-	});
-
-  $("document").mouseup(function(){
-		$(".submenu").hide();
-		$(".account").attr('id', '');
-    $('.dropdownPanel').hide(200);
+  // Dropdown toggle
+  $('.dropdown-toggle').click(function(e){
+    e.preventDefault();
+    $(this).next('.dropdown').toggle();
   });
+
+  $(document).click(function(e) {
+    var target = e.target;
+    if (!$(target).is('.dropdown-toggle') && !$(target).parents().is('.dropdown-toggle')) {
+      $('.dropdown').hide();
+    }
+  });
+  
+  $('.region-content').hover(
+    function() {
+      $('.auto-hide').children('.cnt-icon').show();
+      $('.dropdown').hide();
+    }, function() {
+      $('.auto-hide').children('.cnt-icon').hide();
+      $('.dropdown').hide();
+    }
+  );
 
 })(jQuery, Drupal, drupalSettings);

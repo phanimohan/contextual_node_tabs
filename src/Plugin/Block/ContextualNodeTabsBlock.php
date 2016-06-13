@@ -101,16 +101,12 @@ class ContextualNodeTabsBlock extends BlockBase implements ContainerFactoryPlugi
     $contextual_tabs = [];
 
     // Add only selected levels for the printed output.
-    $links = $this->localTaskManager->getLocalTasks($this->routeMatch->getRouteName(), 0);
-		$cacheability = $cacheability->merge($links['cacheability']);
 		$contextual_tabs += [
-			'#primary' => count(Element::getVisibleChildren($links['tabs'])) > 0 ? $links['tabs'] : [],
+			'#primary' => menu_primary_local_tasks(),
 		];
 		
-    $links = $this->localTaskManager->getLocalTasks($this->routeMatch->getRouteName(), 1);
-		$cacheability = $cacheability->merge($links['cacheability']);
-		$contextual_tabs += [
-			'#secondary' => count(Element::getVisibleChildren($links['tabs'])) > 0 ? $links['tabs'] : [],
+    $contextual_tabs += [
+			'#secondary' => menu_secondary_local_tasks(),
 		];
 
     $build = [];
@@ -120,17 +116,34 @@ class ContextualNodeTabsBlock extends BlockBase implements ContainerFactoryPlugi
     }
 		
 		if ($config['icon'] != 'custom') {
-			$icon_path = $base_path . drupal_get_path('module', 'contextual_node_tabs') . '/images';
-			$icon_image = $icon_path . '/icon-' . $config['icon'] . '.png';	
+			$icon_path = drupal_get_path('module', 'contextual_node_tabs') . '/images';
+			$custom_icon = $icon_path . '/icon-' . $config['icon'] . '.png';
 		} else {
-			$custom_icon = File::load($config['custom']['0']);
-			$icon_image = file_create_url($custom_icon->getFileUri());
+			$custom_icon = File::load($config['custom']['0'])->getFileUri();
 		}
+    $icon_image = file_create_url($custom_icon);
+    
+    $local_primary_tasks = drupal_render($contextual_tabs['#primary']);
+    if (!empty($contextual_tabs['#secondary'])) {
+      $local_secondary_tasks = drupal_render($contextual_tabs['#secondary']);
+    }
+    
+    $classes = array('contextual_local_tasks');
+    if ($config['auto_hide']) {
+      $classes[] = 'auto-hide';
+    }
+    if ($config['align']) {
+      $classes[] = 'right-aligned';
+    }
+    if ($config['position']) {
+      $classes[] = 'position-' . $config['position'];
+    }
 		
 		return [
 			'#theme' => 'contextual_local_tasks',
-			'#local_tasks' => $contextual_tabs,
-			'#config' => $config,
+			'#local_primary_tasks' => $local_primary_tasks,
+      '#local_secondary_tasks' => $local_secondary_tasks,
+      '#classes' => $classes,
 			'#icon' => $icon_image,
 		];
   }
